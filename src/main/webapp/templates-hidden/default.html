@@ -129,13 +129,16 @@
           // Load external content via AJAX. Note that in order to keep this
           // example streamlined, only the content in .infobox is shown. You'll
           // want to change this based on your needs.
+
           if (url) {
+            var cometName=  $('#cometName').val();
+            //alert(cometName);
             jQuery.ajax({
                       type: 'PUT',
                       contentType: "application/json",
                       url: "http://127.0.0.1:8080/v1/rest/cities",
                       dataType: "json",
-                      data: "{\"comet_name\":\"F471187142277G3MUHI\",\"id\":\"" + url +"\"}",
+                      data: "{\"comet_name\":\""+ cometName +"\",\"id\":\"" + url +"\"}",
                       success: function() {
                           //alert('Put Success');
                       },

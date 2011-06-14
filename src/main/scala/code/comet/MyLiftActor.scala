@@ -42,8 +42,8 @@ class Myliftactor extends CometActor with Logger {
    * On page load, this method does a full page render
    */
   def render= {
-    //"#result *" #> "5 seconds after you submit, you will see a new message here."
-    "#cometName *" #> cometName.is.openOr("noName")
+
+    "#dummyId *" #> "diego"
 
   }
 
@@ -80,7 +80,9 @@ class Myliftactor extends CometActor with Logger {
       MyListeners.listenerFor(name) ! registerCometActor(this, name)
       //MyListeners.listenerFor(name)
       info("Registering comet actor: %s".format(this))
-      reRender()
+      partialUpdate(
+        Replace("cometName", <input type="hidden" id="cometName" value={name}></input>)
+      )
     }
     case _ => info("Not sure how we got here.")
   }

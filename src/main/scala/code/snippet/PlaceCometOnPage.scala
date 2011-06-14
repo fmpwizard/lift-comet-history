@@ -12,7 +12,6 @@ import Helpers._
 import common.{Full, Logger, Box, Empty, Failure}
 
 
-//object cometName extends SessionVar[Box[String]](Empty)
 object cometName extends RequestVar[Box[String]](Empty)
 
 /**
@@ -24,8 +23,8 @@ object PlaceCometOnPage extends Logger{
 
 
   def render(xhtml: NodeSeq): NodeSeq = {
-    //val id = //Helpers.nextFuncName // "F471187142277G3MUHI"
-    val id = "F471187142277G3MUHI"
+    val id = Helpers.nextFuncName
+    //val id = "F471187142277G3MUHI"
     info("The current cometActor name is %s".format(cometName.is))
     cometName.is match {
       case Empty => cometName.set(Full(id))
@@ -40,6 +39,7 @@ object PlaceCometOnPage extends Logger{
      */
 
     for (sess <- S.session) sess.sendCometActorMessage("Myliftactor", cometName.is, cometName.is)
+    info(cometName.is)
     <lift:comet type="Myliftactor" name={cometName.is.openOr("noName")}>{xhtml}</lift:comet>
 
   }
