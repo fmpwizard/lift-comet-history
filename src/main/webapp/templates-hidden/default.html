@@ -1,0 +1,194 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:lift="http://liftweb.net/">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <title class="lift:Menu.title">App: </title>
+    <style class="lift:CSS.blueprint"></style>
+    <style class="lift:CSS.fancyType"></style>
+    <!--<script id="jquery" src="/classpath/jquery.js" type="text/javascript"></script>-->
+    <script id="jquery" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js" type="text/javascript"></script>
+
+    <script id="json" src="/classpath/json.js" type="text/javascript"></script>
+    <style type="text/css">
+/* <![CDATA[ */
+.edit_error_class {
+  display: block;
+  color: red;
+}
+
+.sidebar ul {
+	margin:0;
+	padding:0;
+	border-bottom:1px solid #ccc;
+}
+	 
+
+.sidebar ul li {
+	margin:0;
+	padding:0;
+	list-style:none;
+	border:1px solid #ccc;
+	border-bottom:none;
+}
+
+.sidebar ul li a {
+	display:block;
+	padding:3px;
+	text-indent:30px;
+	text-decoration:none;
+}
+
+.sidebar ul li span {
+	display:block;
+	padding:3px;
+	text-indent:30px;
+	text-decoration:none;
+}
+
+.sidebar ul li a:hover {
+	background-color: #eee;
+}
+
+
+  /* ]]> */
+  </style>
+  <script type="text/javascript" language="javascript" src="js/jquery.ba-bbq.min.js">
+
+
+  </script>
+  <script type="text/javascript" language="javascript">
+    $(function(){
+
+      // For each .bbq widget, keep a data object containing a mapping of
+      // url-to-container for caching purposes.
+      $('.bbq').each(function(){
+        $(this).data( 'bbq', {
+          cache: {
+            // If url is '' (no fragment), display this div's content.
+            '': $(this).find('.bbq-default')
+          }
+        });
+      });
+
+      // For all links inside a .bbq widget, push the appropriate state onto the
+      // history when clicked.
+      $('.bbq a[href^=#]').live( 'click', function(e){
+        var state = {},
+
+          // Get the id of this .bbq widget.
+          id = $(this).closest( '.bbq' ).attr( 'id' ),
+
+          // Get the url from the link's href attribute, stripping any leading #.
+          url = $(this).attr( 'href' ).replace( /^#/, '' );
+
+        // Set the state!
+        //alert("DIego1");
+        state[ id ] = url;
+        $.bbq.pushState( state );
+
+        // And finally, prevent the default link click behavior by returning false.
+        return false;
+      });
+
+      // Bind an event to window.onhashchange that, when the history state changes,
+      // iterates over all .bbq widgets, getting their appropriate url from the
+      // current state. If that .bbq widget's url has changed, display either our
+      // cached content or fetch new content to be displayed.
+      $(window).bind( 'hashchange', function(e) {
+
+        // Iterate over all .bbq widgets.
+        $('.bbq').each(function(){
+          //alert("DIego2");
+          var that = $(this),
+
+            // Get the stored data for this .bbq widget.
+            data = that.data( 'bbq' ),
+
+            // Get the url for this .bbq widget from the hash, based on the
+            // appropriate id property. In jQuery 1.4, you should use e.getState()
+            // instead of $.bbq.getState().
+            url = $.bbq.getState( that.attr( 'id' ) ) || '';
+
+          // If the url hasn't changed, do nothing and skip to the next .bbq widget.
+          //if ( data.url === url ) { return; }
+
+          // Store the url for the next time around.
+          //data.url = url;
+
+          // Remove .bbq-current class from any previously "current" link(s).
+          that.find( 'a.bbq-current' ).removeClass( 'bbq-current' );
+
+          // Hide any visible ajax content.
+          that.find( '.bbq-content' ).children( ':visible' ).hide();
+
+          // Add .bbq-current class to "current" nav link(s), only if url isn't empty.
+          url && that.find( 'a[href="#' + url + '"]' ).addClass( 'bbq-current' );
+          // Show "loading" content while AJAX content loads.
+          that.find( '.bbq-loading' ).show();
+          // Load external content via AJAX. Note that in order to keep this
+          // example streamlined, only the content in .infobox is shown. You'll
+          // want to change this based on your needs.
+          if (url) {
+            jQuery.ajax({
+                      type: 'PUT',
+                      contentType: "application/json",
+                      url: "http://127.0.0.1:8080/v1/rest/cities",
+                      dataType: "json",
+                      data: "{\"comet_name\":\"F471187142277G3MUHI\",\"id\":\"" + url +"\"}",
+                      success: function() {
+                          //alert('Put Success');
+                      },
+                      error: function(a,b,c) {
+                          console.log("XMLHttpRequest: " + a);
+                          console.log("textStatus: " + b);
+                          console.log("errorThrown: " + c);
+                          alert("XMLHttpRequest : " + a + " textStatus : " + b + " errorThrown : " + c);
+                      }
+            });
+          }
+
+
+          // Content loaded, hide "loading" content.
+          that.find( '.bbq-loading' ).hide();
+        });
+      })
+
+      // Since the event is only triggered when the hash changes, we need to trigger
+      // the event now, to handle the hash the page may have loaded with.
+      //alert("DIego3");
+      $(window).trigger( 'hashchange' );
+      //alert("DIego4");
+
+    });
+  </script>
+
+
+  </head>
+  <body>
+    <div class="container">
+      <div class="column span-12 last" style="text-align: right">
+        <h1 class="alt">app<img alt="" id="ajax-loader" style="display:none; margin-bottom: 0px; margin-left: 5px" src="/images/ajax-loader.gif"></h1>
+      </div>
+
+      <hr>
+
+      <div class="column span-6 colborder sidebar">
+        <hr class="space" >
+
+	<span class="lift:Menu.builder"></span>
+
+        <div class="lift:Msgs?showAll=true"></div>
+        <hr class="space" />
+      </div>
+
+      <div class="column span-17 last">
+        <div id="content">The main content will get bound here</div>
+      </div>
+
+      <hr />
+      <div class="column span-23 last" style="text-align: center">
+      </div>
+    </div>
+  </body>
+</html>
