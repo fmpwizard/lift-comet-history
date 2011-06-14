@@ -83,7 +83,6 @@
           url = $(this).attr( 'href' ).replace( /^#/, '' );
 
         // Set the state!
-        //alert("DIego1");
         state[ id ] = url;
         $.bbq.pushState( state );
 
@@ -99,7 +98,6 @@
 
         // Iterate over all .bbq widgets.
         $('.bbq').each(function(){
-          //alert("DIego2");
           var that = $(this),
 
             // Get the stored data for this .bbq widget.
@@ -159,9 +157,7 @@
 
       // Since the event is only triggered when the hash changes, we need to trigger
       // the event now, to handle the hash the page may have loaded with.
-      //alert("DIego3");
       $(window).trigger( 'hashchange' );
-      //alert("DIego4");
 
     });
   </script>

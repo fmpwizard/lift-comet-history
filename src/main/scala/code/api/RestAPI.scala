@@ -6,7 +6,6 @@ import scala.xml.{Elem, Node, NodeSeq, Text}
 
 import net.liftweb.common.{Box,Empty,Failure,Full,Logger}
 import net.liftweb.http.rest.RestHelper
-import net.liftweb.http.js.JE.JsRaw
 import net.liftweb.json._
 import net.liftweb.actor._
 import net.liftweb.http._
@@ -20,7 +19,7 @@ case class CityStateUpdate(CometName: String, City: String, State: String)
 object RestHelperAPI extends RestHelper with Logger {
 
   /**
-   * This case class is use to easily parse the json text we get through the REST API
+   * This case class is used to easily parse the json text we get through the REST API
    */
   case class JsonExtractor(
     comet_name: Option[String],
@@ -29,10 +28,13 @@ object RestHelperAPI extends RestHelper with Logger {
 
   /**
    * The heart of the rest api, we listen for urls like:
+   *
    * http://hostname/v1/rest/cities/id
+   * (Remember to add LiftRules.dispatch.prepend(RestHelperAPI)
+   * to Boot.scala)
+   *
    */
   serve {
-         ///v1/     rest/     cities/    1.json
     case "v1" :: "rest" :: "cities" :: _ JsonPut jsonData -> _ =>
       // jsonData is a net.liftweb.json.JsonAST.JValue
       verifyJsonPutData(Full(jsonData.extract[JsonExtractor]))
@@ -48,26 +50,23 @@ object RestHelperAPI extends RestHelper with Logger {
     case Full(jsonPutData) => {
       jsonPutData match {
       /**
-       * If we have all fields, add them to the database
+       * If we have all fields, Update the UI
        */
-
         case JsonExtractor(
           Some(comet_name), Some(id)) => {
             debug("Parsing of json complete for id: %s".format(id))
 
             /**
              * Based on the id, get a city -> State pair
+             * You would normally call a database here.
              */
             val cityMap= lib.CitiesAndStates.cityStateMap(toInt(id))
-            info(cityMap)
-            val lookedupCity  = cityMap(0)._1
-            val lookedupState = cityMap(0)._2
+            info("We got: %s for id: %s".format(cityMap, id))
 
-
-
+            val (lookedupCity, lookedupState)= cityMap(0)
 
           /**
-           * Tell the BrowserDetails comet actor to update the UI
+           * Tell the MyLiftActor comet actor to update the UI
            */
 
             debug(
@@ -82,13 +81,15 @@ object RestHelperAPI extends RestHelper with Logger {
             listenerFor(comet_name) match {
               case a: LiftActor => a !
                 CityStateUpdate(comet_name, lookedupCity, lookedupState)
+
               case _ => info("No actor to send an update")
             }
+
             debug("We will update city: %s, state: %s".format(lookedupCity, lookedupState))
 
             NoContentResponse()
         }
-        // Else. log an error and return a erro4 400 with a message
+        // Else. log an error and return a error 400 with a message
         case JsonExtractor(a, b) => {
           info("It did not passed: %s".format(a))
           val msg= ("We are missing some fields, " +

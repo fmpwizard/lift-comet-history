@@ -18,16 +18,13 @@ import net.liftweb.http.js.JE.Str
 import Helpers._
 
 import api.CityStateUpdate
-import snippet.cometName
-
 
 /**
  * This is the message we pass around to
  * register each named comet actor with a dispatcher that
- * only updates the specific version it monitors
+ * only updates the specific browser tab it is on
  */
-case class registerCometActor(actor: CometActor, version: String)
-
+case class registerCometActor(actor: CometActor, name: String)
 
 class Myliftactor extends CometActor with Logger {
 
@@ -36,15 +33,12 @@ class Myliftactor extends CometActor with Logger {
   // time out the comet actor if it hasn't been on a page for 2 minutes
   override def lifespan = Full(120 seconds)
 
-
-
   /**
-   * On page load, this method does a full page render
+   * On page load, this method does a full page render.
+   * We store the comet actor name on a hidden inout field.
    */
   def render= {
-
-    "#dummyId *" #> "diego"
-
+    "#cometName [value]" #> name
   }
 
   /**
@@ -53,13 +47,17 @@ class Myliftactor extends CometActor with Logger {
    * and State we will update.
    * The REST API sends this message
    *
-   * 2- A string which is the version the comet actor is displaying info about
-   * On page load we get this message
+   * 2- A string which is the name of the comet actor that
+   * we need to send updates to.
    *
    */
   override def lowPriority: PartialFunction[Any,Unit] = {
     case CityStateUpdate(cometName, city, state) => {
       info("Comet Actor %s will do a partial update".format(this))
+
+      /**
+       * You can have many partialUpdate() calls here.
+       */
       partialUpdate(
         SetHtml("city", Text(city))
       )
@@ -72,17 +70,13 @@ class Myliftactor extends CometActor with Logger {
 
       /**
        * We get the DispatcherActor that sends message to all the
-       * CometActors that are displaying a specific version number.
+       * CometActors that are on a tab.
        * And we register ourselves with the dispatcher
        */
 
-      //name map{n => MyListeners.listenerFor(n) ! registerCometActor(this, n) }
       MyListeners.listenerFor(name) ! registerCometActor(this, name)
-      //MyListeners.listenerFor(name)
       info("Registering comet actor: %s".format(this))
-      partialUpdate(
-        Replace("cometName", <input type="hidden" id="cometName" value={name}></input>)
-      )
+
     }
     case _ => info("Not sure how we got here.")
   }
@@ -96,11 +90,7 @@ class Myliftactor extends CometActor with Logger {
  */
 class DispatcherActor(name: String) extends LiftActor  with Logger{
 
-  //info("DispatcherActor got version: %s".format(name))
-  private var cityStateUpdate= CityStateUpdate("name", "Asheville", "North Carolina")
   private var cometActorsToUpdate: List[CometActor]= List()
-
-  def createUpdate = cityStateUpdate
 
   override def messageHandler  = {
     /**
@@ -115,31 +105,27 @@ class DispatcherActor(name: String) extends LiftActor  with Logger{
       }
 
     /**
-     * Go through the the list of actors and send them a cellToUpdate message
+     * Go through the the list of actors and send them a CityStateUpdate message
      */
     case CityStateUpdate(cometName, city, state) => {
-      cityStateUpdate = CityStateUpdate(cometName, city, state)
       info("We will update these comet actors: %s showing name: %s".format(
         cometActorsToUpdate, cometName))
-      cometActorsToUpdate.foreach(_ ! cityStateUpdate)
+      cometActorsToUpdate.foreach(_ ! CityStateUpdate(cometName, city, state))
     }
-    case _ => "Bye"
+    case _ => "We got a strange message, sorry."
   }
 
 }
 
 
 /**
- * Keep a map of versions -> dispatchers, if no dispatcher is found, create one
+ * Keep a map of cometName -> dispatchers, if no dispatcher is found, create one
  * comet actors get the ref to their dispatcher using this object,
  * so they can register themselves and the rest
- * api gets the dispatcher that is monitoring a specific version
+ * api gets the dispatcher that will update a specific browser tab
  *
  */
 object MyListeners extends Logger{
-  //How about creating a ListenerManager (a separate Actor)
-  //for each of the items you're going to have:
-
 
   private var listeners: Map[String, LiftActor] = Map()
 
@@ -154,13 +140,5 @@ object MyListeners extends Logger{
       }
     }
   }
-
-
-
-  //So, you'll have a separate dispatcher for each of your URL parameters
-  //and the CometActors can register with them and the REST thing can find
-  //them to send the messages.
-
-
 
 }

@@ -11,36 +11,27 @@ import http._
 import Helpers._
 import common.{Full, Logger, Box, Empty, Failure}
 
-
-object cometName extends RequestVar[Box[String]](Empty)
-
 /**
   * This object adds a ComeActor of type Myliftactor with a name == random string
   * This allows having multiple tabs open displaying data for different contexts
   */
 object PlaceCometOnPage extends Logger{
 
-
-
   def render(xhtml: NodeSeq): NodeSeq = {
-    val id = Helpers.nextFuncName
-    //val id = "F471187142277G3MUHI"
-    info("The current cometActor name is %s".format(cometName.is))
-    cometName.is match {
-      case Empty => cometName.set(Full(id))
-      case _ => Unit
-    }
-    info("The current CometActor name is %s".format(cometName.is))
-
     /**
      * You can set the id of the comet actor to be something you know the
      * value in advance. Using something like S.param("query_param")
-     * or using the Menu.Param technique
+     * or using the Menu.Param technique.
+     *
+     * In our case we just want a random name
+     *
      */
+    val id = Helpers.nextFuncName
+    info("The current cometActor name is %s".format(id))
 
-    for (sess <- S.session) sess.sendCometActorMessage("Myliftactor", cometName.is, cometName.is)
-    info(cometName.is)
-    <lift:comet type="Myliftactor" name={cometName.is.openOr("noName")}>{xhtml}</lift:comet>
+
+    for (sess <- S.session) sess.sendCometActorMessage("Myliftactor", Full(id), Full(id))
+    <lift:comet type="Myliftactor" name={id}>{xhtml}</lift:comet>
 
   }
 }

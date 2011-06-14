@@ -7,7 +7,7 @@
     </appender>
 
     <logger name="com.fmpwizard.code.snippet" level="error"/>
-    <logger name="com.fmpwizard.code.api" level="debug"/>
+    <logger name="com.fmpwizard.code.api" level="info"/>
     <logger name="com.fmpwizard.code.comet" level="info"/>
     <logger name="com.fmpwizard.code.snippet.PlaceCometOnPage" level="info"/>
     <logger name="com.fmpwizard.code" level="error"/>
