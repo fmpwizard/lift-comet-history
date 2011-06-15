@@ -9,7 +9,6 @@ import util._
 import actor._
 import http._
 import common.{Box, Full,Logger}
-import mapper.{OrderBy, Descending, SelectableField}
 import http.SHtml._
 import http.S._
 import http.js.JsCmds.{SetHtml, SetValueAndFocus, Replace}
