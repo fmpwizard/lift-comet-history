@@ -26,7 +26,8 @@ class Boot {
     // Build SiteMap
     def sitemap = SiteMap(
       Menu.i("Home") / "index" ,
-      Menu.i("LiftActor") / "liftactorform"
+      Menu.i("LiftActor") / "liftactorform",
+      Menu.i("LiftActor v2") / "liftactorform2"
     )
 
     // set the sitemap.  Note if you don't want access control for
