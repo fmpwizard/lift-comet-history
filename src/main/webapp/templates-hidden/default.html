@@ -85,17 +85,19 @@
         // Set the state!
         state[ id ] = url;
         $.bbq.pushState( state );
+        alert(state[ id ]);
 
         // And finally, prevent the default link click behavior by returning false.
         return false;
       });
+      alert("0");
 
       // Bind an event to window.onhashchange that, when the history state changes,
       // iterates over all .bbq widgets, getting their appropriate url from the
       // current state. If that .bbq widget's url has changed, display either our
       // cached content or fetch new content to be displayed.
       $(window).bind( 'hashchange', function(e) {
-
+        alert("1");
         // Iterate over all .bbq widgets.
         $('.bbq').each(function(){
           var that = $(this),
@@ -110,9 +112,9 @@
 
           // If the url hasn't changed, do nothing and skip to the next .bbq widget.
           //if ( data.url === url ) { return; }
-
+          //alert(data);
           // Store the url for the next time around.
-          //data.url = url;
+          //alert(data.url);
 
           // Remove .bbq-current class from any previously "current" link(s).
           that.find( 'a.bbq-current' ).removeClass( 'bbq-current' );
@@ -122,6 +124,7 @@
 
           // Add .bbq-current class to "current" nav link(s), only if url isn't empty.
           url && that.find( 'a[href="#' + url + '"]' ).addClass( 'bbq-current' );
+          //alert("2");
           // Show "loading" content while AJAX content loads.
           that.find( '.bbq-loading' ).show();
           // Load external content via AJAX. Note that in order to keep this
@@ -131,6 +134,9 @@
           if (url) {
             var cometName=  $('#cometName').val();
             //alert(cometName);
+            var x= $(this).find( 'a[href="#' + url + '"]' );
+            x.click();
+            //alert(x);
             jQuery.ajax({
                       type: 'PUT',
                       contentType: "application/json",

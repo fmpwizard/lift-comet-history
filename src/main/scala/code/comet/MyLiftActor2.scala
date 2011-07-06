@@ -11,7 +11,6 @@ import actor._
 import http._
 import common.{Box, Full,Logger}
 import http.SHtml._
-import http.S._
 import http.js.JE._
 import http.js.{JsCmd, JsCmds}
 import http.js.JsCmds.{SetHtml, SetValueAndFocus, Replace}
