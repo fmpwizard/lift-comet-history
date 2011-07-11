@@ -34,14 +34,15 @@ case class registerCometActor2(actor: CometActor, name: String)
 class Myliftactor2 extends CometActor with Logger {
 
   override def defaultPrefix = Full("comet")
-
   // time out the comet actor if it hasn't been on a page for 2 minutes
   override def lifespan = Full(120 seconds)
 
-  def updateCity(str: String) : JsCmd = {
+  def updateCity(x: Any) : JsCmd = {
+    //println("got "  +   x )
+    val data= x.asInstanceOf[Map[String, String]]
 
-    val cometName = str.split('|')(0)
-    val cityId    = str.split('|')(1)
+    val cometName= data("cometName")
+    val cityId= data("cityId")
 
     info("Comet is: %s".format(cometName))
     info("City id is: %s".format(cityId))
@@ -57,45 +58,23 @@ class Myliftactor2 extends CometActor with Logger {
        * we got json data for
        */
       MyListeners2.listenerFor(cometName) match {
-        case a: LiftActor => a !
-          CityStateUpdate(cometName, lookedupCity, lookedupState)
-
-        case _ => info("No actor to send an update")
+        case a: LiftActor => a ! CityStateUpdate(cometName, lookedupCity, lookedupState)
+        case _            => info("No actor to send an update")
       }
     }
-    //Dummy code, not really used
-    JsCmds.Run("$('#who').text('"+str+"')")
+    JsCmds.Noop
   }
-
-
   /**
    * On page load, this method does a full page render.
    * We store the comet actor name on a hidden inout field.
    */
-
   def render= {
     "#cometName [value]"  #> name andThen
-      "href=#1 [onclick]"   #> ajaxCall(
-        //get the name of the current comet actor
-        JsRaw("$('#cometName').attr('value')") +
-          "|" +
-          //get the value of the link, to send to the lift server
-          JsRaw("$(this).attr( 'href' ).replace( /^#/, '' )")
-        , updateCity _)._2.toJsCmd &
-      "href=#2 [onclick]"   #> ajaxCall(
-        //get the name of the current comet actor
-        JsRaw("$('#cometName').attr('value')") +
-          "|" +
-          //get the value of the link, to send to the lift server
-          JsRaw("$(this).attr( 'href' ).replace( /^#/, '' )")
-        , updateCity _)._2.toJsCmd &
-      "href=#3 [onclick]"   #> ajaxCall(
-        //get the name of the current comet actor
-        JsRaw("$('#cometName').attr('value')") +
-          "|" +
-          //get the value of the link, to send to the lift server
-          JsRaw("$(this).attr( 'href' ).replace( /^#/, '' )")
-        , updateCity _)._2.toJsCmd
+    ".ajaxLinks [name]"   #> SHtml.jsonCall(
+    //get the name of the current comet actor and
+    //the href of the link and send them as json data
+    JsRaw("""{cometName : $('#cometName').attr('value'), cityId : url }""")
+      , updateCity _)._2
 
   }
 
@@ -119,9 +98,11 @@ class Myliftactor2 extends CometActor with Logger {
       partialUpdate(
         SetHtml("city", Text(city))
       )
+      //S.runTemplate("liftactorform" :: Nil) map { x => partialUpdate (SetHtml("state", ( x ))) }
       partialUpdate(
         SetHtml("state", Text(state))
       )
+
     }
     case Full(name: String)=> {
       info("[URL]: CometActor monitoring session: %s".format(name))

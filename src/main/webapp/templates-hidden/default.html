@@ -85,19 +85,19 @@
         // Set the state!
         state[ id ] = url;
         $.bbq.pushState( state );
-        alert(state[ id ]);
+        //alert(state[ id ]);
 
         // And finally, prevent the default link click behavior by returning false.
         return false;
       });
-      alert("0");
+      //alert("0");
 
       // Bind an event to window.onhashchange that, when the history state changes,
       // iterates over all .bbq widgets, getting their appropriate url from the
       // current state. If that .bbq widget's url has changed, display either our
       // cached content or fetch new content to be displayed.
       $(window).bind( 'hashchange', function(e) {
-        alert("1");
+        //alert("1");
         // Iterate over all .bbq widgets.
         $('.bbq').each(function(){
           var that = $(this),
@@ -132,12 +132,17 @@
           // want to change this based on your needs.
 
           if (url) {
+            var urlFileName= window.location.pathname.substring(url.lastIndexOf('/')+1);
             var cometName=  $('#cometName').val();
-            //alert(cometName);
             var x= $(this).find( 'a[href="#' + url + '"]' );
-            x.click();
-            //alert(x);
-            jQuery.ajax({
+            //alert(x.attr( 'name' ));
+            if (urlFileName == "/liftactorform2"){
+              //x.click();
+              eval(x.attr( 'name' ));
+              //alert("1");
+            } else {
+             //alert("2");
+              jQuery.ajax({
                       type: 'PUT',
                       contentType: "application/json",
                       url: "http://" + window.location.hostname +
@@ -154,7 +159,8 @@
                           console.log("errorThrown: " + c);
                           alert("XMLHttpRequest : " + a + " textStatus : " + b + " errorThrown : " + c);
                       }
-            });
+              });
+            }
           }
 
 
