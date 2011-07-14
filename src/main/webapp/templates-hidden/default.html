@@ -136,7 +136,9 @@
             var cometName=  $('#cometName').val();
             var x= $(this).find( 'a[href="#' + url + '"]' );
             //alert(x.attr( 'name' ));
-            if (urlFileName == "/liftactorform2"){
+            //alert(url);
+            if ((urlFileName == "/liftactorform2") ||
+                (urlFileName == "/2/liftactorform2")){
               //x.click();
               eval(x.attr( 'name' ));
               //alert("1");
@@ -145,9 +147,9 @@
               jQuery.ajax({
                       type: 'PUT',
                       contentType: "application/json",
-                      url: "http://" + window.location.hostname +
-                        ":"+window.document.location.port+"/v1/rest/cities",
-                      //url: "http://dmedina.scala-tools.org/2/v1/rest/cities",
+                      //url: "http://" + window.location.hostname +
+                        //":"+window.document.location.port+"/v1/rest/cities",
+                      url: "http://dmedina.scala-tools.org/2/v1/rest/cities",
                       dataType: "json",
                       data: "{\"comet_name\":\""+ cometName +"\",\"id\":\"" + url +"\"}",
                       success: function() {

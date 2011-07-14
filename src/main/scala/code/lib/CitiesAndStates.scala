@@ -18,8 +18,9 @@ package lib
  */
 
 
-
-
+/**
+ * This would normally be a call to your database
+ */
 
 object CitiesAndStates {
   val cityStateMap=

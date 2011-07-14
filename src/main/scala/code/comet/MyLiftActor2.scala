@@ -39,10 +39,13 @@ class Myliftactor2 extends CometActor with Logger {
 
   def updateCity(x: Any) : JsCmd = {
     //println("got "  +   x )
-    val data= x.asInstanceOf[Map[String, String]]
-
-    val cometName= data("cometName")
-    val cityId= data("cityId")
+    val (cometName: String, cityId) = Full(x).asA[Map[String, Any]] match {
+      case Full(m) => (
+        m.get("cometName").getOrElse("No comet Name"),
+        m.get("cityId").getOrElse("1")
+      )
+      case _ => ("No Comet Name", "1")
+    }
 
     info("Comet is: %s".format(cometName))
     info("City id is: %s".format(cityId))
@@ -73,6 +76,9 @@ class Myliftactor2 extends CometActor with Logger {
     ".ajaxLinks [name]"   #> SHtml.jsonCall(
     //get the name of the current comet actor and
     //the href of the link and send them as json data
+    // The following javascript ends up sending something like:
+    // {cometName : "AD456KGURYEWFTNM4" , cityId : "1" }
+    // url is a variable that is calculated on default.html
     JsRaw("""{cometName : $('#cometName').attr('value'), cityId : url }""")
       , updateCity _)._2
 

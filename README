@@ -1,0 +1,14 @@
+To run this application you will need SBT.
+From the command line do:
+
+$ git clone git://github.com/fmpwizard/lift-comet-history.git
+$ cd lift-comet-history
+$ sbt
+> update
+> jetty-run
+
+And go to http://127.0.0.1:8080
+
+Enjoy and if you have any question email me at diego@fmpwizard.com
+(spammers, don't bother, I use gmail so I'll never get your emails :) )
+
